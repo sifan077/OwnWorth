@@ -106,4 +106,20 @@ void main() {
     expect(find.text('2026年10月25日'), findsOneWidget);
     expect(find.text('今天购入'), findsOneWidget);
   });
+
+  testWidgets('lays out without overflow on a narrow phone', (tester) async {
+    tester.view.physicalSize = const Size(360 * 3, 640 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await pumpLauncher(
+      tester,
+      firstDate: DateTime.utc(2020, 1, 1),
+      lastDate: today,
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('1 年前'), findsOneWidget);
+  });
 }
