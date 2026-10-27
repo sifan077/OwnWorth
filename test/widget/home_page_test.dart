@@ -128,7 +128,29 @@ void main() {
     expect(find.text('已达成'), findsNothing);
     expect(find.text('使用统计'), findsOneWidget);
     expect(find.text('使用 2 次'), findsOneWidget);
-    expect(find.text('未记录使用'), findsOneWidget);
+    expect(find.text('次均 '), findsOneWidget);
+    expect(find.text('¥1,500.00'), findsOneWidget);
+    expect(find.text('未记录使用'), findsNothing);
+    await disposeHome(tester);
+  });
+
+  testWidgets('hides usage figures until a use is recorded', (tester) async {
+    await repository.save(
+      buildItem(
+        id: 'desk',
+        name: '书桌',
+        purchasePriceCents: 120000,
+        purchaseDate: DateTime.utc(2026, 9, 1),
+        category: ItemCategory.home,
+      ),
+    );
+    await pumpHome(tester);
+
+    expect(find.text('书桌'), findsOneWidget);
+    expect(find.text('日均成本合计'), findsOneWidget);
+    expect(find.text('使用统计'), findsNothing);
+    expect(find.text('未记录使用'), findsNothing);
+    expect(find.text('次均 '), findsNothing);
     await disposeHome(tester);
   });
 

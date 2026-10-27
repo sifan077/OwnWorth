@@ -91,6 +91,11 @@ void main() {
     expect(find.text('当前日均成本'), findsOneWidget);
     expect(find.text('目标日均成本'), findsOneWidget);
     expect(find.text('18.3%'), findsOneWidget);
+    // No usage recorded yet, so per-use figures stay hidden.
+    expect(find.text('累计使用'), findsNothing);
+    expect(find.text('单次使用成本'), findsNothing);
+    expect(find.text('本月使用'), findsNothing);
+    expect(find.text('最近一次'), findsNothing);
 
     await tester.scrollUntilVisible(
       find.text('结束使用'),

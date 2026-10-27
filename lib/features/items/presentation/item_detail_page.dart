@@ -859,103 +859,103 @@ class _UsagePanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          // Usage figures are only meaningful once at least one use has been
+          // recorded, so they stay hidden until then.
+          if (usage.hasUsage) ...[
+            const SizedBox(height: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '累计使用',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            '${usage.totalCount}',
+                            style: AppTheme.tabular(
+                              theme.textTheme.displaySmall!.copyWith(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -1,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '次',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '累计使用',
+                      '单次使用成本',
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 1),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          '${usage.totalCount}',
-                          style: AppTheme.tabular(
-                            theme.textTheme.displaySmall!.copyWith(
-                              fontSize: 36,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -1,
-                            ),
-                          ),
+                    Text(
+                      usage.costPerUseCents == null
+                          ? '—'
+                          : formatYuan(usage.costPerUseCents!),
+                      style: AppTheme.tabular(
+                        theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: scheme.primary,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '次',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Row(
                 children: [
-                  Text(
-                    '单次使用成本',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
+                  Expanded(
+                    child: _UsageFact(
+                      label: '本月使用',
+                      value: '${usage.monthCount} 次',
                     ),
                   ),
-                  const SizedBox(height: 1),
-                  Text(
-                    usage.costPerUseCents == null
-                        ? '—'
-                        : formatYuan(usage.costPerUseCents!),
-                    style: AppTheme.tabular(
-                      theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: usage.hasUsage
-                            ? scheme.primary
-                            : scheme.onSurfaceVariant,
-                      ),
+                  Expanded(
+                    child: _UsageFact(
+                      label: '最近一次',
+                      value: lastUsed == null
+                          ? '暂无记录'
+                          : formatChineseDate(lastUsed),
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _UsageFact(
-                    label: '本月使用',
-                    value: '${usage.monthCount} 次',
-                  ),
-                ),
-                Expanded(
-                  child: _UsageFact(
-                    label: '最近一次',
-                    value: lastUsed == null
-                        ? '暂无记录'
-                        : formatChineseDate(lastUsed),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (usage.hasUsage)
             Align(
               alignment: Alignment.centerRight,
               child: TextButton.icon(
@@ -968,6 +968,7 @@ class _UsagePanel extends StatelessWidget {
                 label: const Text('撤销最近一次'),
               ),
             ),
+          ],
           if (!active) ...[
             const SizedBox(height: 4),
             Row(

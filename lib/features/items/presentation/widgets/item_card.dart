@@ -86,7 +86,8 @@ class ItemCard extends StatelessWidget {
                                 color: scheme.onSurfaceVariant,
                               ),
                             ),
-                            _UsageChip(count: usageCount),
+                            if (usageCount > 0)
+                              _UsageChip(count: usageCount),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -138,6 +139,34 @@ class ItemCard extends StatelessWidget {
                                   color: scheme.onSurfaceVariant,
                                 ),
                               ),
+                              // Per-use cost only exists once a use is recorded.
+                              if (usageCount > 0) ...[
+                                const SizedBox(width: 8),
+                                Text(
+                                  '·',
+                                  style: theme.textTheme.labelMedium?.copyWith(
+                                    color: scheme.outline,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '次均 ',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                Text(
+                                  formatYuan(
+                                    item.purchasePriceCents / usageCount,
+                                  ),
+                                  style: AppTheme.tabular(
+                                    theme.textTheme.labelLarge?.copyWith(
+                                      color: scheme.onSurfaceVariant,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -200,6 +229,7 @@ class ItemCard extends StatelessWidget {
   }
 }
 
+/// Only rendered for items that already have at least one usage record.
 class _UsageChip extends StatelessWidget {
   const _UsageChip({required this.count});
 
@@ -209,26 +239,22 @@ class _UsageChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final used = count > 0;
-    final foreground = used ? scheme.primary : scheme.onSurfaceVariant;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-        color: used
-            ? scheme.primaryContainer.withValues(alpha: 0.55)
-            : scheme.surfaceContainerHigh,
+        color: scheme.primaryContainer.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.touch_app_outlined, size: 12, color: foreground),
+          Icon(Icons.touch_app_outlined, size: 12, color: scheme.primary),
           const SizedBox(width: 3),
           Text(
-            used ? '使用 $count 次' : '未记录使用',
+            '使用 $count 次',
             style: theme.textTheme.labelSmall?.copyWith(
-              color: foreground,
+              color: scheme.primary,
               fontWeight: FontWeight.w600,
             ),
           ),

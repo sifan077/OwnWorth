@@ -90,7 +90,7 @@ class OverviewPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          if (usage != null) ...[
+          if (usage != null && usage!.totalUses > 0) ...[
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
