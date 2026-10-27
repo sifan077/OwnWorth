@@ -472,16 +472,16 @@ class _ItemFormScaffoldState extends ConsumerState<ItemFormScaffold> {
   Future<void> _pickPurchaseDate() async {
     final today = ref.read(todayProvider);
     final endDate = _initial?.endDate;
-    var lastDate = today;
+    var lastDate = normalizeDate(today);
     if (_initial?.status == ItemStatus.ended &&
         endDate != null &&
-        endDate.isBefore(today)) {
-      lastDate = endDate;
+        endDate.isBefore(lastDate)) {
+      lastDate = normalizeDate(endDate);
     }
     final picked = await showAppDatePicker(
       context: context,
       initialDate: _purchaseDate,
-      firstDate: DateTime.utc(1970),
+      firstDate: DateTime.utc(1980),
       lastDate: lastDate,
       title: '选择购买日期',
       description: '购买日期决定日均成本从哪天开始摊薄，不能晚于今天。',
