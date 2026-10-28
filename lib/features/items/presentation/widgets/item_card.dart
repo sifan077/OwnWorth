@@ -86,8 +86,7 @@ class ItemCard extends StatelessWidget {
                                 color: scheme.onSurfaceVariant,
                               ),
                             ),
-                            if (usageCount > 0)
-                              _UsageChip(count: usageCount),
+                            if (usageCount > 0) _UsageChip(count: usageCount),
                           ],
                         ),
                         const SizedBox(height: 8),

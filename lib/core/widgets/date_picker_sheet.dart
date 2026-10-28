@@ -303,9 +303,7 @@ class _DatePickerSheetState extends State<_DatePickerSheet> {
           label: '$_visibleMonth月',
           style: style,
           expanded: _level == _CalendarLevel.month,
-          onTap: _level == _CalendarLevel.month
-              ? _backToDays
-              : _openMonthGrid,
+          onTap: _level == _CalendarLevel.month ? _backToDays : _openMonthGrid,
         ),
       );
     }
@@ -385,7 +383,11 @@ class _DatePickerSheetState extends State<_DatePickerSheet> {
                 if (dayNumber < 1 || dayNumber > daysInMonth) {
                   return const SizedBox.shrink();
                 }
-                final date = DateTime.utc(_visibleYear, _visibleMonth, dayNumber);
+                final date = DateTime.utc(
+                  _visibleYear,
+                  _visibleMonth,
+                  dayNumber,
+                );
                 final enabled = _isDayEnabled(date);
                 return _DayCell(
                   date: date,
@@ -540,9 +542,7 @@ class _GridTile extends StatelessWidget {
             style: AppTheme.tabular(
               theme.textTheme.labelLarge?.copyWith(
                 color: enabled
-                    ? (selected
-                          ? scheme.onPrimaryContainer
-                          : scheme.onSurface)
+                    ? (selected ? scheme.onPrimaryContainer : scheme.onSurface)
                     : scheme.onSurface.withValues(alpha: 0.35),
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
               ),

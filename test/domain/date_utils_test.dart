@@ -98,14 +98,8 @@ void main() {
     test('clamps dates into the allowed range', () {
       final first = DateTime.utc(2020, 1, 1);
       final last = DateTime.utc(2026, 10, 25);
-      expect(
-        clampCalendarDate(DateTime.utc(2019, 5, 5), first, last),
-        first,
-      );
-      expect(
-        clampCalendarDate(DateTime.utc(2027, 1, 1), first, last),
-        last,
-      );
+      expect(clampCalendarDate(DateTime.utc(2019, 5, 5), first, last), first);
+      expect(clampCalendarDate(DateTime.utc(2027, 1, 1), first, last), last);
       expect(
         clampCalendarDate(DateTime(2026, 10, 20, 18), first, last),
         DateTime.utc(2026, 10, 20),
