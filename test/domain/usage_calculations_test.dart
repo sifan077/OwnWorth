@@ -90,40 +90,4 @@ void main() {
       expect(metrics.lastUsedAt, DateTime(2026, 8, 15, 10));
     });
   });
-
-  group('usage overview', () {
-    test('sums all uses and counts distinct items', () {
-      final usages = [
-        buildUsage(
-          id: 'a1',
-          itemId: 'a',
-          usedAt: DateTime(2026, 10, 20, 9).toUtc(),
-        ),
-        buildUsage(
-          id: 'a2',
-          itemId: 'a',
-          usedAt: DateTime(2026, 10, 24, 9).toUtc(),
-        ),
-        buildUsage(
-          id: 'b1',
-          itemId: 'b',
-          usedAt: DateTime(2026, 9, 30, 9).toUtc(),
-        ),
-      ];
-
-      final overview = summarizeUsage(usages, today);
-
-      expect(overview.totalUses, 3);
-      expect(overview.monthUses, 2);
-      expect(overview.usedItemCount, 2);
-    });
-
-    test('empty usage is all zeros', () {
-      final overview = summarizeUsage(const [], today);
-
-      expect(overview.totalUses, 0);
-      expect(overview.monthUses, 0);
-      expect(overview.usedItemCount, 0);
-    });
-  });
 }

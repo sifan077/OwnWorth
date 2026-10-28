@@ -12,6 +12,7 @@ import 'package:ownworth/core/storage/image_store.dart';
 import 'package:ownworth/features/items/data/item_repository.dart';
 import 'package:ownworth/features/items/domain/owned_item.dart';
 import 'package:ownworth/features/items/presentation/home_page.dart';
+import 'package:ownworth/features/items/presentation/widgets/home_filter_bar.dart';
 
 import '../helpers/fixtures.dart';
 
@@ -38,8 +39,11 @@ void main() {
     }
   });
 
-  Future<void> pumpHome(WidgetTester tester) async {
-    tester.view.physicalSize = const Size(900, 1800);
+  Future<void> pumpHome(
+    WidgetTester tester, {
+    Size size = const Size(900, 1800),
+  }) async {
+    tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -126,11 +130,91 @@ void main() {
     expect(find.text('累计购入'), findsOneWidget);
     expect(find.text('目标进度'), findsNWidgets(2));
     expect(find.text('已达成'), findsNothing);
-    expect(find.text('使用统计'), findsOneWidget);
+    expect(find.text('使用统计'), findsNothing);
     expect(find.text('使用 2 次'), findsOneWidget);
     expect(find.text('次均 '), findsOneWidget);
     expect(find.text('¥1,500.00'), findsOneWidget);
     expect(find.text('未记录使用'), findsNothing);
+    expect(find.text('全部物品'), findsOneWidget);
+    await disposeHome(tester);
+  });
+
+  testWidgets('overview follows the active category filter', (tester) async {
+    await repository.save(
+      buildItem(
+        id: 'coffee',
+        name: '咖啡机',
+        purchasePriceCents: 300000,
+        purchaseDate: DateTime.utc(2026, 9, 1),
+        category: ItemCategory.appliance,
+      ),
+    );
+    await repository.save(
+      buildItem(
+        id: 'fryer',
+        name: '空气炸锅',
+        purchasePriceCents: 20000,
+        purchaseDate: DateTime.utc(2026, 9, 10),
+        category: ItemCategory.appliance,
+      ),
+    );
+    await repository.save(
+      buildItem(
+        id: 'coat',
+        name: '羊毛大衣',
+        purchasePriceCents: 80000,
+        purchaseDate: DateTime.utc(2026, 1, 1),
+        category: ItemCategory.clothing,
+      ),
+    );
+    await pumpHome(tester);
+
+    expect(find.text('¥4,000.00'), findsOneWidget);
+    expect(find.text('全部物品'), findsOneWidget);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(HomeFilterBar),
+        matching: find.text('家电'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('当前筛选'), findsOneWidget);
+    expect(find.text('全部物品'), findsNothing);
+    expect(find.text('¥3,200.00'), findsOneWidget);
+    expect(find.text('¥4,000.00'), findsNothing);
+    expect(find.text('羊毛大衣'), findsNothing);
+    await disposeHome(tester);
+  });
+
+  testWidgets('overview follows the search query', (tester) async {
+    await repository.save(
+      buildItem(
+        id: 'coffee',
+        name: '咖啡机',
+        purchasePriceCents: 300000,
+        purchaseDate: DateTime.utc(2026, 9, 1),
+      ),
+    );
+    await repository.save(
+      buildItem(
+        id: 'earphones',
+        name: 'Sony 耳机',
+        purchasePriceCents: 150000,
+        purchaseDate: DateTime.utc(2026, 10, 20),
+      ),
+    );
+    await pumpHome(tester);
+
+    expect(find.text('¥4,500.00'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), '咖啡');
+    await tester.pumpAndSettle();
+
+    expect(find.text('当前筛选'), findsOneWidget);
+    expect(find.text('¥3,000.00'), findsWidgets);
+    expect(find.text('¥4,500.00'), findsNothing);
     await disposeHome(tester);
   });
 
@@ -151,6 +235,40 @@ void main() {
     expect(find.text('使用统计'), findsNothing);
     expect(find.text('未记录使用'), findsNothing);
     expect(find.text('次均 '), findsNothing);
+    await disposeHome(tester);
+  });
+
+  testWidgets('filtered overview fits a narrow screen', (tester) async {
+    await repository.save(
+      buildItem(
+        id: 'coffee',
+        name: '咖啡机',
+        purchasePriceCents: 300000,
+        purchaseDate: DateTime.utc(2026, 9, 1),
+        category: ItemCategory.appliance,
+      ),
+    );
+    await repository.save(
+      buildItem(
+        id: 'fryer',
+        name: '空气炸锅',
+        purchasePriceCents: 20000,
+        purchaseDate: DateTime.utc(2026, 9, 10),
+        category: ItemCategory.appliance,
+      ),
+    );
+    await pumpHome(tester, size: const Size(360, 1600));
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(HomeFilterBar),
+        matching: find.text('家电'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('当前筛选'), findsOneWidget);
     await disposeHome(tester);
   });
 

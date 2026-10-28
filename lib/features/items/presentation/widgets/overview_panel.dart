@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/utils/money.dart';
 import '../../domain/cost_calculations.dart';
-import '../../domain/usage_calculations.dart';
 
 class OverviewPanel extends StatelessWidget {
-  const OverviewPanel({super.key, required this.overview, this.usage});
+  const OverviewPanel({super.key, required this.overview, this.scoped = false});
 
   final OwnedItemsOverview overview;
 
-  /// Null while usage records are still loading.
-  final UsageOverview? usage;
+  /// True while search or a category narrows the list, so the numbers below
+  /// describe the filtered subset rather than every record.
+  final bool scoped;
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +47,7 @@ class OverviewPanel extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Text(
-                '实时计算',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
+              _ScopeChip(scoped: scoped),
             ],
           ),
           const SizedBox(height: 18),
@@ -90,94 +85,6 @@ class OverviewPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          if (usage != null && usage!.totalUses > 0) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-              decoration: BoxDecoration(
-                color: scheme.surface.withValues(alpha: 0.56),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.touch_app_outlined,
-                    size: 16,
-                    color: scheme.primary,
-                  ),
-                  const SizedBox(width: 7),
-                  Text(
-                    '使用统计',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: scheme.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const Spacer(),
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerRight,
-                      child: Row(
-                        children: [
-                          Text(
-                            '累计 ',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                          Text(
-                            '${usage!.totalUses}',
-                            style: AppTheme.tabular(
-                              theme.textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            ' 次',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 7),
-                            child: Text(
-                              '·',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: scheme.outline,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            '本月 ',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                          Text(
-                            '${usage!.monthUses}',
-                            style: AppTheme.tabular(
-                              theme.textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            ' 次',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -196,7 +103,9 @@ class OverviewPanel extends StatelessWidget {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    '日均成本合计只统计在用物品，是将购入成本按持有天数摊薄后的结果，不代表每日实际支出。',
+                    scoped
+                        ? '以上数字只统计当前筛选出的物品。日均成本合计只统计在用物品，是将购入成本按持有天数摊薄后的结果，不代表每日实际支出。'
+                        : '日均成本合计只统计在用物品，是将购入成本按持有天数摊薄后的结果，不代表每日实际支出。',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                       height: 1.4,
@@ -204,6 +113,49 @@ class OverviewPanel extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tells the reader whether the numbers cover every record or only the
+/// filtered subset.
+class _ScopeChip extends StatelessWidget {
+  const _ScopeChip({required this.scoped});
+
+  final bool scoped;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final foreground = scoped ? scheme.primary : scheme.onSurfaceVariant;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: scoped
+            ? scheme.primaryContainer.withValues(alpha: 0.7)
+            : scheme.surface.withValues(alpha: 0.56),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            scoped ? Icons.filter_alt_rounded : Icons.select_all_rounded,
+            size: 12,
+            color: foreground,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            scoped ? '当前筛选' : '全部物品',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: foreground,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -306,7 +258,7 @@ class OverviewPanelSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      height: 236,
+      height: 196,
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(24),

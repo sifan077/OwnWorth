@@ -179,6 +179,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               enabled: false,
                               onTap: null,
                             ),
+                            Divider(
+                              height: 1,
+                              indent: 68,
+                              color: scheme.outlineVariant,
+                            ),
+                            _SettingsTile(
+                              icon: Icons.person_outline_rounded,
+                              title: '作者',
+                              subtitle:
+                                  'sifan077\ngithub.com/sifan077/OwnWorth',
+                              enabled: false,
+                              onTap: null,
+                            ),
                           ],
                         ),
                       ),

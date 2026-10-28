@@ -7,7 +7,6 @@ import '../../../core/widgets/empty_state.dart';
 import '../domain/cost_calculations.dart';
 import '../domain/item_query.dart';
 import '../domain/owned_item.dart';
-import '../domain/usage_calculations.dart';
 import 'items_providers.dart';
 import 'widgets/home_filter_bar.dart';
 import 'widgets/item_card.dart';
@@ -21,7 +20,6 @@ class HomePage extends ConsumerWidget {
     final today = ref.watch(todayProvider);
     final itemsAsync = ref.watch(allItemsProvider);
     final overviewAsync = ref.watch(overviewProvider);
-    final usageAsync = ref.watch(usageOverviewProvider);
     final usageCounts = ref.watch(usageCountsProvider);
     final filteredAsync = ref.watch(filteredItemsProvider);
     final filter = ref.watch(homeFilterProvider);
@@ -54,8 +52,7 @@ class HomePage extends ConsumerWidget {
                       child: overviewAsync.when(
                         data: (overview) => OverviewPanel(
                           overview: overview,
-                          usage:
-                              usageAsync.value ?? const UsageOverview.empty(),
+                          scoped: filter.isNarrowed,
                         ),
                         loading: () => const OverviewPanelSkeleton(),
                         error: (error, stackTrace) => const SizedBox.shrink(),

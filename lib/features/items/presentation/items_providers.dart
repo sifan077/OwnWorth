@@ -24,6 +24,10 @@ class HomeFilter {
       category == null &&
       sort == ItemSort.dailyCostHighToLow;
 
+  /// Whether search or category narrows the list below the full set. Sorting
+  /// alone does not change the aggregated numbers, so it does not count.
+  bool get isNarrowed => query.trim().isNotEmpty || category != null;
+
   HomeFilter copyWith({
     String? query,
     Object? category = _categoryUnset,
@@ -82,10 +86,14 @@ final filteredItemsProvider = Provider<AsyncValue<List<OwnedItem>>>((ref) {
   );
 });
 
+/// Aggregated numbers for the list currently on screen.
+///
+/// It reads [filteredItemsProvider] so the overview follows the active search
+/// and category filter instead of always describing every record.
 final overviewProvider = Provider<AsyncValue<OwnedItemsOverview>>((ref) {
-  final items = ref.watch(allItemsProvider);
+  final filtered = ref.watch(filteredItemsProvider);
   final today = ref.watch(todayProvider);
-  return items.whenData((value) => summarizeItems(value, today));
+  return filtered.whenData((value) => summarizeItems(value, today));
 });
 
 /// Recorded usage count per item ID. Empty while the usage stream is loading.

@@ -4,7 +4,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../features/items/data/item_repository.dart';
 import '../features/items/domain/item_usage.dart';
 import '../features/items/domain/owned_item.dart';
-import '../features/items/domain/usage_calculations.dart';
 import 'backup/backup_service.dart';
 import 'database/app_database.dart';
 import 'storage/image_store.dart';
@@ -48,8 +47,8 @@ final itemByIdProvider = StreamProvider.family<OwnedItem?, String>((
   return ref.watch(itemRepositoryProvider).watchById(id);
 });
 
-/// Every usage record, newest first. The usage panels and overview statistics
-/// update reactively when a use is recorded or removed.
+/// Every usage record, newest first. The usage panels update reactively when a
+/// use is recorded or removed.
 final allUsagesProvider = StreamProvider<List<ItemUsage>>((ref) {
   return ref.watch(itemRepositoryProvider).watchAllUsages();
 });
@@ -60,12 +59,6 @@ final itemUsagesProvider = StreamProvider.family<List<ItemUsage>, String>((
   String itemId,
 ) {
   return ref.watch(itemRepositoryProvider).watchUsagesForItem(itemId);
-});
-
-final usageOverviewProvider = Provider<AsyncValue<UsageOverview>>((ref) {
-  final usages = ref.watch(allUsagesProvider);
-  final today = ref.watch(todayProvider);
-  return usages.whenData((value) => summarizeUsage(value, today));
 });
 
 final appVersionProvider = FutureProvider<String>((ref) async {
